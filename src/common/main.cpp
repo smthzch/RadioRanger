@@ -18,10 +18,10 @@ LED(SCL) -|D5       D8|-
 */
 
 #if defined(RADIO)
-  const char* MY_DEVICE_NAME     = "RADIO";
+  const char* MY_DEVICE_NAME = "RADIO";
   static const char* OTHER_DEVICE_MAC = "94:a9:90:69:e6:12";
-#elif defined(DEVICE_B)
-  const char* MY_DEVICE_NAME     = "RANGER";
+#elif defined(RANGER)
+  const char* MY_DEVICE_NAME = "RANGER";
   static const char* OTHER_DEVICE_MAC = "94:a9:90:67:00:16";
 #else
   #error "Please define RADIO or RANGER in build flags or at top of sketch"
@@ -30,10 +30,7 @@ LED(SCL) -|D5       D8|-
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
-
-#include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
-
 #include "battery.h"
 #include "ledbar.h"
 
@@ -44,7 +41,9 @@ static BLEAddress targetAddr(OTHER_DEVICE_MAC);
 BLEScan* pBLEScan = nullptr;
 unsigned long previousMillis = 0;
 const long interval = 500;  // Scan + update every 1.1 seconds
-float smooth_rssi = -100;
+int no_contact = 1;
+float min_rssi = -100;
+float smooth_rssi = min_rssi;
 float alpha = 0.2;
 
 
@@ -52,6 +51,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice advertisedDevice) {
     if (advertisedDevice.getAddress().equals(targetAddr)) {
       smooth_rssi = alpha * (float)advertisedDevice.getRSSI() + (1 - alpha)* smooth_rssi;
+      no_contact = 0;
     }
   }
 };
@@ -98,6 +98,11 @@ void loop() {
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
     pBLEScan->stop();
+
+    no_contact++;
+    if (no_contact > 4){
+      smooth_rssi = min_rssi;
+    }
 
     // Serial output
     Serial.print("RSSI: ");
