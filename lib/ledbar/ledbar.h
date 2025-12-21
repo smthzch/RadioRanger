@@ -1,4 +1,3 @@
-#include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
 
 void initBar(Adafruit_24bargraph& bar);
