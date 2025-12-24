@@ -12,7 +12,6 @@ void initBar(Adafruit_24bargraph& bar){
         if ((b % 3) == 2)  bar.setBar(b, LED_GREEN);
     }
     bar.writeDisplay();
-    //bar.blinkRate(1);
 }
 
 void setBar(Adafruit_24bargraph& bar, float rssi){

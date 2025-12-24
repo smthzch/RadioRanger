@@ -17,15 +17,6 @@ LED(SCL) -|D5       D8|-
          -|D6       D7|-
 */
 
-#if defined(RADIO)
-  const char* MY_DEVICE_NAME = "RADIO";
-  static const char* OTHER_DEVICE_MAC = "94:a9:90:69:e6:12";
-#elif defined(RANGER)
-  const char* MY_DEVICE_NAME = "RANGER";
-  static const char* OTHER_DEVICE_MAC = "94:a9:90:67:00:16";
-#else
-  #error "Please define RADIO or RANGER in build flags or at top of sketch"
-#endif
 
 #include <BLEDevice.h>
 #include <BLEScan.h>
@@ -33,6 +24,9 @@ LED(SCL) -|D5       D8|-
 #include "Adafruit_LEDBackpack.h"
 #include "battery.h"
 #include "ledbar.h"
+
+const char* MY_DEVICE_NAME = "RANGER";
+static const char* OTHER_DEVICE_MAC = "94:a9:90:67:21:96";
 
 Adafruit_24bargraph  bar = Adafruit_24bargraph();
 
@@ -64,19 +58,12 @@ void setup() {
   initBar(bar);
 
   pinMode(A0, INPUT); // ADC for battery voltage
-  Serial.begin(115200);
+  Serial.begin(9600);
   delay(1500);  // For XIAO USB CDC
 
   // BLE init
   BLEDevice::init(MY_DEVICE_NAME);
 
-  // Start advertising (peripheral mode)
-  BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06);  // Helps with compatibility
-  pAdvertising->start();
-  Serial.println("Advertising started");
-  
   // Setup scanner (central mode)
   pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
@@ -85,12 +72,6 @@ void setup() {
   pBLEScan->setWindow(100);
   pBLEScan->start(0, &onScanComplete, false);
   Serial.println("Continuous scanning started");
-
-  // Print BLE MAC address for client to use
-  Serial.print("BLE Address: ");
-  Serial.println(BLEDevice::getAddress().toString().c_str());
-  Serial.println("Waiting for connection...");
-  
 }
 
 void loop() {
@@ -114,7 +95,7 @@ void loop() {
 
     float Vbattf = batteryVoltage(A0);
     Serial.println(Vbattf, 3);
-    if (Vbattf > 3.7){
+    if (Vbattf > 3.6){
       bar.blinkRate(0);
     }else if(Vbattf > 3.4){
       bar.blinkRate(2);
