@@ -19,10 +19,10 @@ LED(SCL) -|D5       D8|-
 
 #if defined(RADIO)
   const char* MY_DEVICE_NAME = "RADIO";
-  static const char* OTHER_DEVICE_MAC = "94:a9:90:69:e6:12";
+  static const char* OTHER_DEVICE_MAC = "40:4c:ca:3c:f1:2a";
 #elif defined(RANGER)
   const char* MY_DEVICE_NAME = "RANGER";
-  static const char* OTHER_DEVICE_MAC = "94:a9:90:67:00:16";
+  static const char* OTHER_DEVICE_MAC = "94:a9:90:69:e6:12";
 #else
   #error "Please define RADIO or RANGER in build flags or at top of sketch"
 #endif
@@ -81,8 +81,8 @@ void setup() {
   pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setActiveScan(false);  // Passive scan saves power
-  pBLEScan->setInterval(200);
-  pBLEScan->setWindow(100);
+  //pBLEScan->setInterval(200);
+  //pBLEScan->setWindow(100);
   pBLEScan->start(0, &onScanComplete, false);
   Serial.println("Continuous scanning started");
 
